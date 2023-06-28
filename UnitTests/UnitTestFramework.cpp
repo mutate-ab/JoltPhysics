@@ -130,7 +130,7 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 		Trace = TraceImpl;
 		JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 		// Enable leak detection
 		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
@@ -188,7 +188,7 @@ int main(int argc, char** argv)
 	Trace = TraceImpl;
 	JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
 
-#if defined(JPH_PLATFORM_WINDOWS) && defined(_DEBUG)
+#if defined(JPH_PLATFORM_WINDOWS) && !defined(NDEBUG)
 	// Enable leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif

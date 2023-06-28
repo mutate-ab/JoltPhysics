@@ -242,12 +242,12 @@
 // OS-specific includes
 #if defined(JPH_PLATFORM_WINDOWS)
 	#define JPH_BREAKPOINT		__debugbreak()
-#elif defined(JPH_PLATFORM_BLUE) 
+#elif defined(JPH_PLATFORM_BLUE)
 	// Configuration for a popular game console.
-	// This file is not distributed because it would violate an NDA. 
-	// Creating one should only be a couple of minutes of work if you have the documentation for the platform 
+	// This file is not distributed because it would violate an NDA.
+	// Creating one should only be a couple of minutes of work if you have the documentation for the platform
 	// (you only need to define JPH_BREAKPOINT, JPH_PLATFORM_BLUE_GET_TICKS and JPH_PLATFORM_BLUE_GET_TICK_FREQUENCY and include the right header).
-	#include <Jolt/Core/PlatformBlue.h> 
+	#include <Jolt/Core/PlatformBlue.h>
 #elif defined(JPH_PLATFORM_LINUX) || defined(JPH_PLATFORM_ANDROID) || defined(JPH_PLATFORM_MACOS) || defined(JPH_PLATFORM_IOS)
 	#if defined(JPH_CPU_X86)
 		#define JPH_BREAKPOINT		__asm volatile ("int $0x3")
@@ -382,9 +382,9 @@ static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid si
 
 // Stack allocation
 #define JPH_STACK_ALLOC(n)		alloca(n)
-	
-// Shorthand for #ifdef _DEBUG / #endif
-#ifdef _DEBUG
+
+// Shorthand for #ifndef NDEBUG / #endif
+#ifndef NDEBUG
 	#define JPH_IF_DEBUG(...)	__VA_ARGS__
 	#define JPH_IF_NOT_DEBUG(...)
 #else

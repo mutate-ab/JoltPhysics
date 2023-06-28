@@ -4,7 +4,7 @@
 
 #pragma once
 
-#if defined(_DEBUG) && !defined(JPH_DISABLE_CUSTOM_ALLOCATOR) && !defined(JPH_COMPILER_MINGW)
+#if !defined(NDEBUG) && !defined(JPH_DISABLE_CUSTOM_ALLOCATOR) && !defined(JPH_COMPILER_MINGW)
 
 /// Register hook that detects allocations that aren't made through the custom allocator
 void RegisterCustomMemoryHook();
@@ -19,7 +19,7 @@ bool IsCustomMemoryHookEnabled();
 
 inline void RegisterCustomMemoryHook() { RegisterDefaultAllocator(); }
 
-#endif // _DEBUG && !JPH_DISABLE_CUSTOM_ALLOCATOR && !JPH_COMPILER_MINGW
+#endif // !NDEBUG && !JPH_DISABLE_CUSTOM_ALLOCATOR && !JPH_COMPILER_MINGW
 
 /// Struct that, when put on the stack, temporarily disables checking that all allocations go through the custom memory allocator
 struct DisableCustomMemoryHook

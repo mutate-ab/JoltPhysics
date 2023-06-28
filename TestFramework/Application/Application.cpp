@@ -16,7 +16,7 @@
 #include <crtdbg.h>
 
 // Constructor
-Application::Application() : 
+Application::Application() :
 	mDebugRenderer(nullptr),
 	mRenderer(nullptr),
 	mKeyboard(nullptr),
@@ -24,7 +24,7 @@ Application::Application() :
 	mUI(nullptr),
 	mDebugUI(nullptr)
 {
-#if defined(_DEBUG)
+#if !defined(NDEBUG)
 	// Enable leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
@@ -202,7 +202,7 @@ void Application::Run()
 
 			if (mUI->IsVisible())
 			{
-				// Send mouse input to UI		
+				// Send mouse input to UI
 				bool left_pressed = mMouse->IsLeftPressed();
 				if (left_pressed && !mLeftMousePressed)
 					mUI->MouseDown(mMouse->GetX(), mMouse->GetY());

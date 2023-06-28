@@ -106,7 +106,7 @@ Body &Test::CreateMeshTerrain()
 {
 	const float scale = GetWorldScale();
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	const int n = 50;
 	const float cell_size = scale * 2.0f;
 #else

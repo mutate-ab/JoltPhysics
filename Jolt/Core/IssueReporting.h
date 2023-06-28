@@ -5,13 +5,13 @@
 #pragma once
 
 JPH_NAMESPACE_BEGIN
-	
+
 /// Trace function, needs to be overridden by application. This should output a line of text to the log / TTY.
 using TraceFunction = void (*)(const char *inFMT, ...);
 JPH_EXPORT extern TraceFunction Trace;
 
 // Always turn on asserts in Debug mode
-#if defined(_DEBUG) && !defined(JPH_ENABLE_ASSERTS)
+#if !defined(NDEBUG) && !defined(JPH_ENABLE_ASSERTS)
 	#define JPH_ENABLE_ASSERTS
 #endif
 
@@ -32,7 +32,7 @@ JPH_EXPORT extern TraceFunction Trace;
 #else
     #define JPH_ASSERT(...)					((void)0)
 
-	#define JPH_IF_ENABLE_ASSERTS(...)	
+	#define JPH_IF_ENABLE_ASSERTS(...)
 #endif // JPH_ENABLE_ASSERTS
 
 JPH_NAMESPACE_END

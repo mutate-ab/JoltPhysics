@@ -135,7 +135,7 @@ public:
 
 	/// Bodies are protected using an array of mutexes (so a fixed number, not 1 per body). Each bit in this mask indicates a locked mutex.
 	using MutexMask = uint64;
-	
+
 	///@name Batch body mutex access (do not use directly)
 	///@{
 	MutexMask						GetAllBodiesMutexMask() const				{ return mBodyMutexes.GetNumMutexes() == sizeof(MutexMask) * 8? ~MutexMask(0) : (MutexMask(1) << mBodyMutexes.GetNumMutexes()) - 1; }
@@ -181,7 +181,7 @@ public:
 	/// Draw settings
 	struct DrawSettings
 	{
-		bool						mDrawGetSupportFunction = false;				///< Draw the GetSupport() function, used for convex collision detection	
+		bool						mDrawGetSupportFunction = false;				///< Draw the GetSupport() function, used for convex collision detection
 		bool						mDrawSupportDirection = false;					///< When drawing the support function, also draw which direction mapped to a specific support point
 		bool						mDrawGetSupportingFace = false;					///< Draw the faces that were found colliding during collision detection
 		bool						mDrawShape = true;								///< Draw the shapes of all bodies
@@ -224,10 +224,10 @@ public:
 	};
 #endif
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	/// Validate if the cached bounding boxes are correct for all active bodies
 	void							ValidateActiveBodyBounds();
-#endif // _DEBUG
+#endif // !NDEBUG
 
 private:
 	/// Increment and get the sequence number of the body
@@ -242,10 +242,10 @@ private:
 	/// Helper function to delete a body (which could actually be a BodyWithMotionProperties)
 	inline static void				sDeleteBody(Body *inBody);
 
-#if defined(_DEBUG) && defined(JPH_ENABLE_ASSERTS)
+#if !defined(NDEBUG) && defined(JPH_ENABLE_ASSERTS)
 	/// Function to check that the free list is not corrupted
 	void							ValidateFreeList() const;
-#endif // defined(_DEBUG) && _defined(JPH_ENABLE_ASSERTS)
+#endif // !defined(NDEBUG) && _defined(JPH_ENABLE_ASSERTS)
 
 	/// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with sIsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
 	BodyVector						mBodies;
@@ -266,7 +266,7 @@ private:
 	uintptr_t						mBodyIDFreeListStart = cBodyIDFreeListEnd;
 
 	/// Protects mBodies array (but not the bodies it points to), mNumBodies and mBodyIDFreeListStart
-	mutable Mutex					mBodiesMutex; 
+	mutable Mutex					mBodiesMutex;
 
 	/// An array of mutexes protecting the bodies in the mBodies array
 	using BodyMutexes = MutexArray<SharedMutex>;

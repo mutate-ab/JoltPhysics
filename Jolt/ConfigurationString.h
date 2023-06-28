@@ -62,7 +62,7 @@ inline const char *GetConfigurationString()
 #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
 		"(FP Exceptions) "
 #endif
-#ifdef _DEBUG
+#ifndef NDEBUG
 		"(Debug) "
 #endif
 		;

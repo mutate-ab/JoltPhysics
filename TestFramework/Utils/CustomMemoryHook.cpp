@@ -6,7 +6,7 @@
 
 #include <Utils/CustomMemoryHook.h>
 
-#if defined(_DEBUG) && !defined(JPH_DISABLE_CUSTOM_ALLOCATOR) && !defined(JPH_COMPILER_MINGW)
+#if !defined(NDEBUG) && !defined(JPH_DISABLE_CUSTOM_ALLOCATOR) && !defined(JPH_COMPILER_MINGW)
 
 // Global to turn checking on/off
 static bool sEnableCustomMemoryHook = false;
@@ -128,4 +128,4 @@ DisableCustomMemoryHook::~DisableCustomMemoryHook()
 {
 }
 
-#endif // _DEBUG && !JPH_DISABLE_CUSTOM_ALLOCATOR && !JPH_COMPILER_MINGW
+#endif // !NDEBUG && !JPH_DISABLE_CUSTOM_ALLOCATOR && !JPH_COMPILER_MINGW

@@ -156,7 +156,7 @@ void LargeIslandSplitter::Splits::MarkBatchProcessed(uint inNumProcessed, bool &
 				// At start of next split
 				++split_index;
 			}
-		
+
 			// If we're beyond the end of splits, go to the non-parallel split
 			if (split_index >= mNumSplits)
 				split_index = cNonParallelSplitIdx;
@@ -439,7 +439,7 @@ bool LargeIslandSplitter::SplitIsland(uint32 inIslandIndex, const IslandBuilder 
 		JPH_ASSERT(constraint_buffer_cur[s] == mContactAndConstraintIndices + split.mConstraintBufferEnd);
 	}
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	// Validate that the splits are indeed not touching the same body
 	for (uint s = 0; s < splits.mNumSplits; ++s)
 	{
@@ -468,7 +468,7 @@ bool LargeIslandSplitter::SplitIsland(uint32 inIslandIndex, const IslandBuilder 
 			}
 		}
 	}
-#endif // _DEBUG
+#endif // !NDEBUG
 #endif // JPH_ENABLE_ASSERTS
 
 	// Allow other threads to pick up this split island now
