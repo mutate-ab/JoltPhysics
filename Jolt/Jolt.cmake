@@ -462,7 +462,7 @@ if (BUILD_SHARED_LIBS)
 	target_compile_definitions(Jolt PRIVATE JPH_BUILD_SHARED_LIBRARY)
 endif()
 
-target_include_directories(Jolt PUBLIC ${PHYSICS_REPO_ROOT})
+target_include_directories(Jolt PUBLIC $<BUILD_INTERFACE:${PHYSICS_REPO_ROOT}> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_precompile_headers(Jolt PRIVATE ${JOLT_PHYSICS_ROOT}/Jolt.h)
 target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:Debug>:_DEBUG;JPH_PROFILE_ENABLED;JPH_DEBUG_RENDERER>")
 target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:Release>:NDEBUG;JPH_PROFILE_ENABLED;JPH_DEBUG_RENDERER>")

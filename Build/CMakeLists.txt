@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-project(JoltPhysics CXX)
+project(JoltPhysics LANGUAGES CXX VERSION 3.0.1)
+include(GNUInstallDirs)
 
 # When turning this option on, the library will be compiled using doubles for positions. This allows for much bigger worlds.
 option(DOUBLE_PRECISION "Use double precision math" OFF)
@@ -22,8 +23,8 @@ option(BUILD_SHARED_LIBS "Compile Jolt as a shared library" OFF)
 # If you don't do this you may get an error: /usr/bin/ld: libJolt.a: error adding symbols: file format not recognized
 option(INTERPROCEDURAL_OPTIMIZATION "Enable interprocedural optimizations" ON)
 
-# When turning this on, in Debug and Release mode, the library will emit extra code to ensure that the 4th component of a 3-vector is kept the same as the 3rd component 
-# and will enable floating point exceptions during simulation to detect divisions by zero. 
+# When turning this on, in Debug and Release mode, the library will emit extra code to ensure that the 4th component of a 3-vector is kept the same as the 3rd component
+# and will enable floating point exceptions during simulation to detect divisions by zero.
 # Note that this currently only works using MSVC. Clang turns Float2 into a SIMD vector sometimes causing floating point exceptions (the option is ignored).
 option(FLOATING_POINT_EXCEPTIONS_ENABLED "Enable floating point exceptions" ON)
 
@@ -60,7 +61,7 @@ endif()
 if (("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows" OR "${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore") AND NOT MINGW)
 	# Fill in the path to the asan libraries
 	set(CLANG_LIB_PATH "\"$(VSInstallDir)\\VC\\Tools\\Llvm\\x64\\lib\\clang\\${CMAKE_CXX_COMPILER_VERSION}\\lib\\windows\"")
-	
+
 	# 64 bit architecture
 	set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE "x64")
 
@@ -71,7 +72,7 @@ if (("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows" OR "${CMAKE_SYSTEM_NAME}" STREQUA
 
 	# Set general compiler flags
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus /Gm- /MP /nologo /diagnostics:classic /FC /fp:except- /Zc:inline")
-	
+
 	# Enable warnings
 	if (ENABLE_ALL_WARNINGS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX")
@@ -192,20 +193,10 @@ set(PHYSICS_REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../)
 include(${PHYSICS_REPO_ROOT}/Jolt/Jolt.cmake)
 if (IOS)
 	# Ensure that we enable SSE4.2 for the x86_64 build, CMAKE_SYSTEM_PROCESSOR is not set for iOS
-	set_property(TARGET Jolt PROPERTY XCODE_ATTRIBUTE_OTHER_CPLUSPLUSFLAGS[arch=x86_64] "$(inherited) -msse4.2 -mpopcnt") 
+	set_property(TARGET Jolt PROPERTY XCODE_ATTRIBUTE_OTHER_CPLUSPLUSFLAGS[arch=x86_64] "$(inherited) -msse4.2 -mpopcnt")
 endif()
 
-# Install Jolt library and includes
-install(TARGETS Jolt DESTINATION lib)
-foreach(SRC_FILE ${JOLT_PHYSICS_SRC_FILES})
-	string(REPLACE ${PHYSICS_REPO_ROOT} "" RELATIVE_SRC_FILE ${SRC_FILE})
-	get_filename_component(DESTINATION_PATH ${RELATIVE_SRC_FILE} DIRECTORY)
-	if (NOT RELATIVE_SRC_FILE MATCHES "\.cpp")
-		install(FILES ${SRC_FILE} DESTINATION include/${DESTINATION_PATH})
-	endif()
-endforeach()
-
-# Check if we're the root CMakeLists.txt, if not we are included by another CMake file and we should disable everything except for the main library 
+# Check if we're the root CMakeLists.txt, if not we are included by another CMake file and we should disable everything except for the main library
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	# Ability to turn ON/OFF individual applications
 	option(TARGET_UNIT_TESTS "Build Unit Tests" ON)
@@ -261,10 +252,10 @@ if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 				target_link_options(PerformanceTest PUBLIC "/SUBSYSTEM:CONSOLE")
 			endif()
 			set_property(TARGET PerformanceTest PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${PHYSICS_REPO_ROOT}")
-			
+
 			# Copy the assets folder
 			add_custom_command(TARGET PerformanceTest PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${PHYSICS_REPO_ROOT}/Assets/ $<TARGET_FILE_DIR:PerformanceTest>/Assets/)
-		   endif()
+		endif()
 	endif()
 
 	if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows" AND NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "ARM")) # ARM 32-bit is missing dinput8.lib
@@ -280,3 +271,57 @@ if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		endif()
 	endif()
 endif()
+
+# Install Jolt library and includes
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Jolt)
+add_library(Jolt::Jolt ALIAS Jolt)
+
+foreach(SRC_FILE ${JOLT_PHYSICS_SRC_FILES})
+	string(REPLACE ${PHYSICS_REPO_ROOT} "" RELATIVE_SRC_FILE ${SRC_FILE})
+	get_filename_component(DESTINATION_PATH ${RELATIVE_SRC_FILE} DIRECTORY)
+	if (NOT RELATIVE_SRC_FILE MATCHES "\.cpp")
+		install(FILES ${SRC_FILE} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DESTINATION_PATH})
+	endif()
+endforeach()
+
+# Install Jolt and optionally JoltViewer it is exists
+install(
+	TARGETS Jolt
+	EXPORT Jolt-targets
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+# Install a cmake file which external projects can import.
+install(
+	EXPORT Jolt-targets
+	FILE JoltTargets.cmake
+	NAMESPACE Jolt::
+	DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+include(CMakePackageConfigHelpers)
+# Creates the project's ConfigVersion.cmake file
+# This allows for find_package() to use a version in the call
+write_basic_package_version_file(
+	${CMAKE_CURRENT_BINARY_DIR}/JoltConfigVersion.cmake
+	# Assuming Semver is followed
+	COMPATIBILITY SameMajorVersion
+)
+
+# Configure config file
+configure_package_config_file(
+	${CMAKE_CURRENT_LIST_DIR}/JoltConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/JoltConfig.cmake
+	INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+# Install the ConfigVersion file, which is located in the build dir
+install(
+	FILES
+		${CMAKE_CURRENT_BINARY_DIR}/JoltConfig.cmake
+		${CMAKE_CURRENT_BINARY_DIR}/JoltConfigVersion.cmake
+	DESTINATION ${INSTALL_CONFIGDIR}
+)
